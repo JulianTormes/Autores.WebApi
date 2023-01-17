@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 using WebApiAutores.Controllers;
@@ -26,8 +27,10 @@ namespace WebApiAutores
             services.AddTransient<ServicioTransient>();
             services.AddScoped<ServicioScoped>();
             services.AddSingleton<ServicioSingleton>();
+            services.AddResponseCaching();
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
         }
         public void Configure (IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
         {
@@ -51,6 +54,8 @@ namespace WebApiAutores
             app.UseHttpsRedirection();
 
             app.UseRouting ();
+
+            app.UseResponseCaching();
 
             app.UseAuthorization();
 

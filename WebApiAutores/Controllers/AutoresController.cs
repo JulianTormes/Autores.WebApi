@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApiAutores.Entidades;
@@ -8,6 +9,7 @@ namespace WebApiAutores.Controllers
 {
     [ApiController]
     [Route("api/autores")]
+    [Authorize]
     public class AutoresController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -15,12 +17,12 @@ namespace WebApiAutores.Controllers
         private readonly ServicioTransient _servicioTransient;
         private readonly ServicioScoped _servicioScoped;
         private readonly ServicioSingleton _servicioSingleton;
-        
+
 
         //private readonly IValidator<Autor> _validator;
         private readonly ILogger<AutoresController> _logger;
 
-        public AutoresController(ApplicationDbContext context,IServicio servicio,
+        public AutoresController(ApplicationDbContext context, IServicio servicio,
             ServicioTransient servicioTransient, ServicioScoped servicioScoped, ServicioSingleton servicioSingleton, ILogger<AutoresController> logger) //, IValidator<Autor> validator
 
         {
@@ -34,6 +36,7 @@ namespace WebApiAutores.Controllers
             //var x = new AutoresController(context, _validator);
         }
         [HttpGet("GUID")]
+        [ResponseCache(Duration = 10)]
         public ActionResult ObtenerGuids()
         {
             return Ok(new
@@ -50,6 +53,8 @@ namespace WebApiAutores.Controllers
         [HttpGet]//api/autores (hereda ruta)
         [HttpGet("listado")]//api/autores/listado (Concatena ruta)
         [HttpGet("/listado")]//listado (crea una nueva ruta)
+        [ResponseCache(Duration = 10)]
+
         //(Multiples rutas)
         public async Task<ActionResult<List<Autor>>> Get()
         {
