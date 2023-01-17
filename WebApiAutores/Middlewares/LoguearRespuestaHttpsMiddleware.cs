@@ -17,7 +17,6 @@ namespace WebApiAutores.Middlewares
     {
         private readonly RequestDelegate _siguiente;
         private readonly ILogger<LoguearRespuestaHttpsMiddleware> _logger;
-        private readonly ILogger<LoguearRespuestaHttpsMiddleware> logger;
 
         public LoguearRespuestaHttpsMiddleware(RequestDelegate siguiente, ILogger<LoguearRespuestaHttpsMiddleware> logger)
         {

@@ -3,13 +3,14 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApiAutores.Entidades;
+using WebApiAutores.Filtros;
 using WebApiAutores.Servicios;
 
 namespace WebApiAutores.Controllers
 {
     [ApiController]
     [Route("api/autores")]
-    [Authorize]
+    //[Authorize]
     public class AutoresController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -36,11 +37,12 @@ namespace WebApiAutores.Controllers
             //var x = new AutoresController(context, _validator);
         }
         [HttpGet("GUID")]
-        [ResponseCache(Duration = 10)]
+        //[ResponseCache(Duration = 10)]
+        [ServiceFilter(typeof(MiFiltroDeAccion))]
         public ActionResult ObtenerGuids()
         {
             return Ok(new
-            {
+            {   
                 AutoresControllerTransient = _servicioTransient.Guid,
                 ServicioA_Transient = _servicio.ObtenerTransient(),
                 AutoresControllerScoped = _servicioScoped.Guid,
@@ -53,11 +55,13 @@ namespace WebApiAutores.Controllers
         [HttpGet]//api/autores (hereda ruta)
         [HttpGet("listado")]//api/autores/listado (Concatena ruta)
         [HttpGet("/listado")]//listado (crea una nueva ruta)
-        [ResponseCache(Duration = 10)]
+        [ServiceFilter(typeof(MiFiltroDeAccion))]
+        //[ResponseCache(Duration = 10)]
 
         //(Multiples rutas)
         public async Task<ActionResult<List<Autor>>> Get()
         {
+            throw new NotImplementedException();
             _logger.LogInformation("Estamos obteniendo los autores");
             _logger.LogWarning("Este es un mensaje de prueba");
             _servicio.RealizarTarea();
