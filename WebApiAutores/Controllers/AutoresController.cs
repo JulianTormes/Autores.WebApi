@@ -1,7 +1,9 @@
-﻿using FluentValidation;
+﻿using AutoMapper;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using WebApiAutores.DTOs;
 using WebApiAutores.Entidades;
 using WebApiAutores.Filtros;
 
@@ -12,15 +14,15 @@ namespace WebApiAutores.Controllers
     public class AutoresController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
-
+        private readonly IMapper _mapper;
 
         //private readonly IValidator<Autor> _validator;
-        private readonly ILogger<AutoresController> _logger;
 
-        public AutoresController(ApplicationDbContext context) 
+        public AutoresController(ApplicationDbContext context,IMapper mapper) 
 
         {
             _context = context;
+            _mapper = mapper;
         }
 
         [HttpGet]//api/autores (hereda ruta)
@@ -56,7 +58,7 @@ namespace WebApiAutores.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> Post([FromBody] Autor autor)
+        public async Task<ActionResult> Post([FromBody] AutorCreacionDTO autorCreacionDTO)
         {
             /*var result = await ValidateAsync(autor);
             if (!result.IsValid)
@@ -64,11 +66,13 @@ namespace WebApiAutores.Controllers
                 _logger.LogWarning("{@errors}", result.Errors);
                 return BadRequest(result.Errors);
             }*/
-            var ExisteAutorConElMismoNombre = await _context.Autores.AnyAsync(x=>x.Nombre==autor.Nombre);
+            var ExisteAutorConElMismoNombre = await _context.Autores.AnyAsync(x=>x.Nombre==autorCreacionDTO.Nombre);
             if (ExisteAutorConElMismoNombre)
             {
-                return BadRequest($"Ya existe un autor con el nombre{autor.Nombre}");
+                return BadRequest($"Ya existe un autor con el nombre{autorCreacionDTO.Nombre}");
             }
+
+            var autor = _mapper.Map<Autor>(autorCreacionDTO);
 
             _context.Add(autor);
             await _context.SaveChangesAsync();

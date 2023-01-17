@@ -30,6 +30,7 @@ namespace WebApiAutores
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
+            services.AddAutoMapper(typeof(Startup));
         }
         public void Configure (IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
         {
