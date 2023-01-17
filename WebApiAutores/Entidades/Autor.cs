@@ -5,46 +5,14 @@ using WebApiAutores.Validaciones;
 
 namespace WebApiAutores.Entidades;
 
-public class Autor :IValidatableObject
-{
-    public int Id { get; set; }
-    [Required(ErrorMessage ="El campo {0} es requerido")]
-    [StringLength(maximumLength: 100, ErrorMessage = "El campo {0} no debe tener mas de {1} caracteres")]
-    //[PrimeraLetraMayuscula]
-    public string Nombre { get; set; }
-
-    /*[Range(18,99)]
-    [NotMapped]
-    public int Edad {get; set; }
-    [CreditCard]
-    [NotMapped]
-    public string TarjetaDeCredito { get;set;}
-    [Url]
-    [NotMapped]
-    public string URL {get;set; }
-    public int Menor {get; set; }
-    public int Mayor { get; set; }  */
-    public List <Libro> Libros { get; set; }
-
-    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    public class Autor
     {
-        if (!string.IsNullOrEmpty(Nombre))
-        {
-            var PrimeraLetra = Nombre[0].ToString();
-            if (PrimeraLetra != PrimeraLetra.ToUpper())
-            {
-                yield return new ValidationResult ("La primera letra debe ser mayuscula",
-                    new string[] {nameof(Nombre)});
-            }
-
-        }
-        /*if (Menor>Mayor)
-        { 
-            yield return new ValidationResult ("Este valor no puede ser mas grande que el campo mayor",
-                new string[] {nameof(Menor) });   
-        }*/
+        public int Id { get; set; }
+        [Required(ErrorMessage ="El campo {0} es requerido")]
+        [StringLength(maximumLength: 100, ErrorMessage = "El campo {0} no debe tener mas de {1} caracteres")]
+        [PrimeraLetraMayuscula]
+        public string Nombre { get; set; }
     }
-}
 
 /*public class AutorValidator : AbstractValidator<Autor>
 {

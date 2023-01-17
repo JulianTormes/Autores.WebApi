@@ -15,7 +15,7 @@ public class LibrosController : ControllerBase
     {
         this.context = context;
     }
-    [HttpGet("{id:int}")]
+    /*[HttpGet("{id:int}")]
     public async Task<ActionResult<Libro>> Get(int id)
     {
         return await context.libros.Include(X => X.Autor).FirstOrDefaultAsync(x => x.Id == id);
@@ -32,5 +32,5 @@ public class LibrosController : ControllerBase
         context.Add(libro);
         await context.SaveChangesAsync();
         return Ok();
-    }
+    }*/
 }

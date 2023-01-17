@@ -5,7 +5,6 @@ using System.Text.Json.Serialization;
 using WebApiAutores.Controllers;
 using WebApiAutores.Filtros;
 using WebApiAutores.Middlewares;
-using WebApiAutores.Servicios;
 
 namespace WebApiAutores
 {
@@ -28,13 +27,6 @@ namespace WebApiAutores
             services.AddValidatorsFromAssemblyContaining<Program>();
             services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(Configuration.GetConnectionString("defaulConnection")));
-            services.AddTransient<IServicio,ServicioA>();
-            services.AddTransient<ServicioTransient>();
-            services.AddScoped<ServicioScoped>();
-            services.AddSingleton<ServicioSingleton>();
-            services.AddTransient<MiFiltroDeAccion>();
-            services.AddHostedService<EscribirEnArchivo>();
-            services.AddResponseCaching();
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
@@ -43,13 +35,7 @@ namespace WebApiAutores
         {
             app.UseLoguearRespuestaHttps();
 
-            app.Map("/ruta1", app =>
-                {
-                    app.Run(async contenxto =>
-                    {
-                        await contenxto.Response.WriteAsync("Estoy intereceptando la tuberia");
-                    });
-                });
+          
            
 
             if (env.IsDevelopment())
@@ -61,8 +47,6 @@ namespace WebApiAutores
             app.UseHttpsRedirection();
 
             app.UseRouting ();
-
-            app.UseResponseCaching();
 
             app.UseAuthorization();
 
