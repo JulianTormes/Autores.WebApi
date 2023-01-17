@@ -15,13 +15,13 @@ namespace WebApiAutores.Controllers
         private readonly ServicioTransient _servicioTransient;
         private readonly ServicioScoped _servicioScoped;
         private readonly ServicioSingleton _servicioSingleton;
-        private readonly ServicioTransient servicioTransient;
+        
 
         //private readonly IValidator<Autor> _validator;
         private readonly ILogger<AutoresController> _logger;
 
         public AutoresController(ApplicationDbContext context,IServicio servicio,
-            ServicioTransient servicioTransient, ServicioScoped servicioScoped, ServicioSingleton servicioSingleton)//, ILogger<AutoresController> logger) //, IValidator<Autor> validator
+            ServicioTransient servicioTransient, ServicioScoped servicioScoped, ServicioSingleton servicioSingleton, ILogger<AutoresController> logger) //, IValidator<Autor> validator
 
         {
             _context = context;
@@ -30,7 +30,7 @@ namespace WebApiAutores.Controllers
             _servicioScoped = servicioScoped;
             _servicioSingleton = servicioSingleton;
             //_validator = validator;
-            //_logger = logger;
+            _logger = logger;
             //var x = new AutoresController(context, _validator);
         }
         [HttpGet("GUID")]
@@ -53,6 +53,8 @@ namespace WebApiAutores.Controllers
         //(Multiples rutas)
         public async Task<ActionResult<List<Autor>>> Get()
         {
+            _logger.LogInformation("Estamos obteniendo los autores");
+            _logger.LogWarning("Este es un mensaje de prueba");
             _servicio.RealizarTarea();
             return await _context.Autores.Include(X => X.Libros).ToListAsync();
         }
