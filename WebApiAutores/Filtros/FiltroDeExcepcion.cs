@@ -11,7 +11,7 @@ namespace WebApiAutores.Filtros
             _logger = logger;
         }
         public override void OnException(ExceptionContext context)
-        {
+         {
             _logger.LogError(context.Exception, context.Exception.Message);
             base.OnException(context);
 
