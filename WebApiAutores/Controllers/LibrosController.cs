@@ -31,12 +31,13 @@ public class LibrosController : ControllerBase
     [HttpPost]
     public async Task<ActionResult> Post (LibroCreacionDTO libroCreacionDTO)
     {
-        /*  var existeAutor = await context.Autores.AnyAsync(X=> X.Id == libro.AutorId);
+        var autoresIds = await _context.Autores
+            .Where(autorBD => libroCreacionDTO.AutoresIds.Contains(autorBD.Id)).Select (x => x.Id).ToListAsync();
+        if (libroCreacionDTO.AutoresIds.Count != autoresIds.Count)
+        {
+            return BadRequest("No existe uno de los autores enviados");
+        }
 
-            if (!existeAutor) 
-                {
-                    return BadRequest ($"No existe el autor de Id:{libro.AutorId}");                
-                }*/
         var libro = _mapper.Map<Libro>(libroCreacionDTO);
         _context.Add(libro);
         await _context.SaveChangesAsync();
