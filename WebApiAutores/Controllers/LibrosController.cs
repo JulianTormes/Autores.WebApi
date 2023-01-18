@@ -20,7 +20,7 @@ public class LibrosController : ControllerBase
         _mapper = mapper;
     }
     [HttpGet("{id:int}")]
-    public async Task<ActionResult<LibroDTO>> Get(int id)
+    public async Task<ActionResult<LibroDTOConAutores>> Get(int id)
     {
         var libro = await _context.Libros
             .Include(libroDB => libroDB.AutoresLibros)
@@ -29,7 +29,7 @@ public class LibrosController : ControllerBase
             .FirstOrDefaultAsync(x => x.Id == id);
         libro.AutoresLibros = libro.AutoresLibros.OrderBy(x => x.Orden).ToList();
 
-        return _mapper.Map<LibroDTO>(libro);
+        return _mapper.Map<LibroDTOConAutores>(libro);
     }
     [HttpPost]
     public async Task<ActionResult> Post (LibroCreacionDTO libroCreacionDTO)
