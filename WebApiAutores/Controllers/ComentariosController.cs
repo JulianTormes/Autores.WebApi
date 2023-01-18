@@ -81,10 +81,6 @@ namespace WebApiAutores.Controllers
             _context.Update(comentario);
             await _context.SaveChangesAsync();
             return NoContent();
-
-
-
-
         }
     }
 }
