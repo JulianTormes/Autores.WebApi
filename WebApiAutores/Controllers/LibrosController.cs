@@ -22,9 +22,12 @@ public class LibrosController : ControllerBase
     [HttpGet("{id:int}")]
     public async Task<ActionResult<LibroDTO>> Get(int id)
     {
-        var libro = await _context.Libros.
-            Include(libroDB=>libroDB.Comentarios)
+        var libro = await _context.Libros
+            .Include(libroDB => libroDB.AutoresLibros)
+            .ThenInclude(autorLibroDB => autorLibroDB.Autor)
+            .Include(libroDB=>libroDB.Comentarios)
             .FirstOrDefaultAsync(x => x.Id == id);
+        libro.AutoresLibros = libro.AutoresLibros.OrderBy(x => x.Orden).ToList();
 
         return _mapper.Map<LibroDTO>(libro);
     }
