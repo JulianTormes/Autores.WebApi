@@ -19,7 +19,15 @@ namespace WebApiAutores.Utilidades
         }
         private List<AutorLibro> MapAutoresLibros(LibroCreacionDTO libroCreacionDTO, Libro libro)
         { 
-            var resultado = new List<Autor>();
+            var resultado = new List<AutorLibro>();
+            if (libroCreacionDTO.AutoresIds==null)
+            {
+                return resultado;
+            }
+            foreach (var autorId in libroCreacionDTO.AutoresIds)
+            {
+                resultado.Add(new AutorLibro() { AutorId = autorId });
+            }
             return resultado;
 
         }

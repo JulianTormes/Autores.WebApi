@@ -31,6 +31,11 @@ public class LibrosController : ControllerBase
     [HttpPost]
     public async Task<ActionResult> Post (LibroCreacionDTO libroCreacionDTO)
     {
+        if (libroCreacionDTO.AutoresIds == null)
+        {
+            return BadRequest("No se puede crear un libro sin autores");
+        }
+
         var autoresIds = await _context.Autores
             .Where(autorBD => libroCreacionDTO.AutoresIds.Contains(autorBD.Id)).Select (x => x.Id).ToListAsync();
         if (libroCreacionDTO.AutoresIds.Count != autoresIds.Count)
@@ -39,6 +44,14 @@ public class LibrosController : ControllerBase
         }
 
         var libro = _mapper.Map<Libro>(libroCreacionDTO);
+        if (libro.AutoresLibros != null)
+        {
+            for (int i = 0; i < libro.AutoresLibros.Count; i++)
+            {
+                libro.AutoresLibros[i].Orden = i;
+            }
+
+        }
         _context.Add(libro);
         await _context.SaveChangesAsync();
         return Ok();
