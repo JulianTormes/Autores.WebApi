@@ -18,6 +18,7 @@ namespace WebApiAutores.Controllers
             _context = context;
             _mapper = mapper;
         }
+
         [HttpGet]
         public async Task<ActionResult<List<ComentarioDTO>>> Get(int libroId)
         {
@@ -32,6 +33,17 @@ namespace WebApiAutores.Controllers
 
             return _mapper.Map<List<ComentarioDTO>>(comentarios);
         }
+        [HttpGet("{id:int}",Name = "ObtenerComentario")]
+        public async Task<ActionResult<ComentarioDTO>> GetPorId(int id)
+        { 
+            var comentario = await _context.Comentarios.FirstOrDefaultAsync(comentarioDB => comentarioDB.Id == id);
+            if (comentario == null)
+            {
+                return NotFound();
+            }
+            return _mapper.Map<ComentarioDTO>(comentario);
+        }
+
         [HttpPost]
         public async Task<ActionResult> Post(int libroId, ComentarioCreacionDTO comentarioCreacionDTO)
         {
@@ -46,7 +58,8 @@ namespace WebApiAutores.Controllers
             comentario.LibroId = libroId;
             _context.Add(comentario);
             await _context.SaveChangesAsync();
-            return Ok();
+            var comentarioDTO = _mapper.Map<ComentarioDTO>(comentario);
+            return CreatedAtRoute("ObtenerComentario", new { id = comentario.Id, libroId= libroId }, comentarioDTO);
         }
     }
 }

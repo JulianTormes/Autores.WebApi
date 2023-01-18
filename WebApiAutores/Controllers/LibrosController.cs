@@ -19,7 +19,7 @@ public class LibrosController : ControllerBase
         _context = context;
         _mapper = mapper;
     }
-    [HttpGet("{id:int}")]
+    [HttpGet("{id:int}", Name = "ObtenerLibro")]
     public async Task<ActionResult<LibroDTOConAutores>> Get(int id)
     {
         var libro = await _context.Libros
@@ -57,6 +57,7 @@ public class LibrosController : ControllerBase
         }
         _context.Add(libro);
         await _context.SaveChangesAsync();
-        return Ok();
+        var libroDTO = _mapper.Map<LibroDTO>(libro);
+        return CreatedAtRoute("ObtenerLibro", new { id = libro.Id }, libroDTO);
     }
 }
