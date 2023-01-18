@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using WebApiAutores.DTOs;
 using WebApiAutores.Entidades;
 
 namespace WebApiAutores.Controllers;
@@ -9,28 +11,32 @@ namespace WebApiAutores.Controllers;
 
 public class LibrosController : ControllerBase
 {
-    private readonly ApplicationDbContext context;
+    private readonly ApplicationDbContext _context;
+    private readonly IMapper _mapper;
 
-    public LibrosController(ApplicationDbContext context)
+    public LibrosController(ApplicationDbContext context, IMapper mapper)
     {
-        this.context = context;
+        _context = context;
+        _mapper = mapper;
     }
-    /*[HttpGet("{id:int}")]
-    public async Task<ActionResult<Libro>> Get(int id)
+    [HttpGet("{id:int}")]
+    public async Task<ActionResult<LibroDTO>> Get(int id)
     {
-        return await context.libros.Include(X => X.Autor).FirstOrDefaultAsync(x => x.Id == id);
+        var libro =  await _context.libros.FirstOrDefaultAsync(x => x.Id == id);
+        return _mapper.Map<LibroDTO>(libro);
     }
     [HttpPost]
-    public async Task<ActionResult> Post (Libro libro)
-    { 
-        var existeAutor = await context.Autores.AnyAsync(X=> X.Id == libro.AutorId);
+    public async Task<ActionResult> Post (LibroCreacionDTO libroCreacionDTO)
+    {
+        /*  var existeAutor = await context.Autores.AnyAsync(X=> X.Id == libro.AutorId);
 
-        if (!existeAutor) 
-            {
-                return BadRequest ($"No existe el autor de Id:{libro.AutorId}");                
-            }
-        context.Add(libro);
-        await context.SaveChangesAsync();
+            if (!existeAutor) 
+                {
+                    return BadRequest ($"No existe el autor de Id:{libro.AutorId}");                
+                }*/
+        var libro = _mapper.Map<Libro>(libroCreacionDTO);
+        _context.Add(libro);
+        await _context.SaveChangesAsync();
         return Ok();
-    }*/
+    }
 }
