@@ -22,7 +22,10 @@ public class LibrosController : ControllerBase
     [HttpGet("{id:int}")]
     public async Task<ActionResult<LibroDTO>> Get(int id)
     {
-        var libro =  await _context.Libros.FirstOrDefaultAsync(x => x.Id == id);
+        var libro = await _context.Libros.
+            Include(libroDB=>libroDB.Comentarios)
+            .FirstOrDefaultAsync(x => x.Id == id);
+
         return _mapper.Map<LibroDTO>(libro);
     }
     [HttpPost]
