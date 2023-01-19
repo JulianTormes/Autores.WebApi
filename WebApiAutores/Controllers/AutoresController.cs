@@ -107,7 +107,7 @@ namespace WebApiAutores.Controllers
 
             _context.Remove(new Autor() { Id = id });
             await _context.SaveChangesAsync();
-            return Ok();
+            return NoContent();
         }
     }
 }
