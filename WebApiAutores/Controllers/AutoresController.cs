@@ -12,6 +12,7 @@ namespace WebApiAutores.Controllers
 {
     [ApiController]
     [Route("api/autores")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class AutoresController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -28,8 +29,8 @@ namespace WebApiAutores.Controllers
             _configuration = configuration;
         }
         [HttpGet]//api/autores (hereda ruta)
-        [Authorize(AuthenticationSchemes =JwtBearerDefaults.AuthenticationScheme)]
         //(Multiples rutas)
+        [AllowAnonymous]
         public async Task<ActionResult<List<AutorDTO>>> Get()
         {
             var autores = await _context.Autores.ToListAsync();
