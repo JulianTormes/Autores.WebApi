@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FluentValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -15,18 +16,19 @@ namespace WebApiAutores.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
+        private readonly IConfiguration _configuration;
 
         //private readonly IValidator<Autor> _validator;
 
-        public AutoresController(ApplicationDbContext context,IMapper mapper) 
+        public AutoresController(ApplicationDbContext context,IMapper mapper,IConfiguration configuration) 
 
         {
             _context = context;
             _mapper = mapper;
+            _configuration = configuration;
         }
-
         [HttpGet]//api/autores (hereda ruta)
-
+        [Authorize(AuthenticationSchemes =JwtBearerDefaults.AuthenticationScheme)]
         //(Multiples rutas)
         public async Task<ActionResult<List<AutorDTO>>> Get()
         {

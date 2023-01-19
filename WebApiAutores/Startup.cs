@@ -1,6 +1,9 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using System.Text.Json.Serialization;
 using WebApiAutores.Controllers;
 using WebApiAutores.Filtros;
@@ -29,8 +32,20 @@ namespace WebApiAutores
             options.UseSqlServer(Configuration.GetConnectionString("defaulConnection")));
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(opciones=> opciones.TokenValidationParameters= new TokenValidationParameters {
+                    ValidateIssuer= false,
+                    ValidateAudience= false,
+                    ValidateLifetime=true,
+                    ValidateIssuerSigningKey=true,
+                    IssuerSigningKey= new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(Configuration["llavejwt"])),
+                    ClockSkew= TimeSpan.Zero
+                    });
             services.AddAutoMapper(typeof(Startup));
+            services.AddIdentity<IdentityUser,IdentityRole> ()
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
         }
         public void Configure (IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
         {
@@ -41,9 +56,10 @@ namespace WebApiAutores
 
             if (env.IsDevelopment())
             {
-                app.UseSwagger();
-                app.UseSwaggerUI();
+
             }
+            app.UseSwagger();
+            app.UseSwaggerUI();
 
             app.UseHttpsRedirection();
 
