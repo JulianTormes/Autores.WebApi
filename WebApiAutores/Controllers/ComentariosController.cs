@@ -1,4 +1,7 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApiAutores.DTOs;
@@ -7,16 +10,19 @@ using WebApiAutores.Entidades;
 namespace WebApiAutores.Controllers
 {
     [ApiController]
-    [Route("api/libros{libroId:int}/comentarios")]
+    [Route("api/libros/{libroId:int}/comentarios")]
     public class ComentariosController: ControllerBase    
     {
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public ComentariosController(ApplicationDbContext context, IMapper mapper)
+        public ComentariosController(ApplicationDbContext context, IMapper mapper,
+            UserManager<IdentityUser> userManager)
         {
             _context = context;
             _mapper = mapper;
+            _userManager = userManager;
         }
 
         [HttpGet]
@@ -45,8 +51,13 @@ namespace WebApiAutores.Controllers
         }
 
         [HttpPost]
+        [Authorize(AuthenticationSchemes =JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult> Post(int libroId, ComentarioCreacionDTO comentarioCreacionDTO)
         {
+            var emailClaim = HttpContext.User.Claims.Where(claim => claim.Type == "email").FirstOrDefault();
+            var email = emailClaim.Value;
+            var usuario= await _userManager.FindByEmailAsync(email);
+            var usuarioId=usuario.Id;
             var existeLibro = await _context.Libros.AnyAsync(libroDB => libroDB.Id==libroId);
 
             if (!existeLibro) 
@@ -56,6 +67,7 @@ namespace WebApiAutores.Controllers
 
             var comentario = _mapper.Map<Comentario>(comentarioCreacionDTO);
             comentario.LibroId = libroId;
+            comentario.UsuarioId=usuarioId;
             _context.Add(comentario);
             await _context.SaveChangesAsync();
             var comentarioDTO = _mapper.Map<ComentarioDTO>(comentario);
