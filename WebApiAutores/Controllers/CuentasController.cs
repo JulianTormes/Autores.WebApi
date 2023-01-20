@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -25,7 +27,7 @@ namespace WebApiAutores.Controllers
             _signInManager = signInManager;
         }
         [HttpPost("Registar")] //api/cuentas/registrar
-        public async Task<ActionResult<RespuestaAutenticacion>> Registrar(CreedencialesUsuario creedencialesUsuario)
+        public async Task<ActionResult<RespuestaAutenticacionDTO>> Registrar(CredencialesUsuario creedencialesUsuario)
         {
             var usuario = new IdentityUser { UserName = creedencialesUsuario.Email,
                 Email = creedencialesUsuario.Email };
@@ -40,7 +42,7 @@ namespace WebApiAutores.Controllers
             }
         }
         [HttpPost("login")]
-        public async Task<ActionResult<RespuestaAutenticacion>> Login(CreedencialesUsuario credencialesUsuario)
+        public async Task<ActionResult<RespuestaAutenticacionDTO>> Login(CredencialesUsuario credencialesUsuario)
         {
             var resultado = await _signInManager.PasswordSignInAsync(credencialesUsuario.Email,
                 credencialesUsuario.Password, isPersistent: false, lockoutOnFailure: false);
@@ -53,7 +55,20 @@ namespace WebApiAutores.Controllers
                 return BadRequest("Login incorrecto");
             }
         }
-        private RespuestaAutenticacion ConstruirToken(CreedencialesUsuario creedencialesUsuario)
+        [HttpGet("RenovarToken")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public ActionResult<RespuestaAutenticacionDTO> Renovar()
+        {
+            var emailClaim = HttpContext.User.Claims.Where(claim => claim.Type == "email").FirstOrDefault();
+            var email = emailClaim.Value;
+            var credencialesUsuario = new CredencialesUsuario()
+            {
+                Email= email
+            };
+            return ConstruirToken(credencialesUsuario);
+            
+        }
+        private RespuestaAutenticacionDTO ConstruirToken(CredencialesUsuario creedencialesUsuario)
         {
             var claims = new List<Claim>()
             {
@@ -62,10 +77,10 @@ namespace WebApiAutores.Controllers
             };
             var llave = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["llavejwt"]));
             var creds = new SigningCredentials(llave, SecurityAlgorithms.HmacSha256);
-            var expiracion = DateTime.UtcNow.AddMonths(3);
+            var expiracion = DateTime.UtcNow.AddMinutes(30);
             var securityToken = new JwtSecurityToken(issuer: null, audience: null, claims: claims,
                 expires: expiracion, signingCredentials:creds);
-            return new RespuestaAutenticacion()
+            return new RespuestaAutenticacionDTO()
             {
                 Token = new JwtSecurityTokenHandler().WriteToken(securityToken),
                 Expiracion = expiracion,

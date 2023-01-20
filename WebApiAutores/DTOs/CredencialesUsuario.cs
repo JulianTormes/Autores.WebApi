@@ -2,7 +2,7 @@
 
 namespace WebApiAutores.DTOs
 {
-    public class CreedencialesUsuario
+    public class CredencialesUsuario
     {
         [Required]
         [EmailAddress]
