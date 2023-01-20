@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -18,14 +19,46 @@ namespace WebApiAutores.Controllers
         private readonly UserManager<IdentityUser> _userManager;
         private readonly IConfiguration _configuration;
         private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly IDataProtector _dataProtector;
 
         public CuentasController(UserManager<IdentityUser> userManager,
             IConfiguration configuration,
-            SignInManager<IdentityUser> signInManager) 
+            SignInManager<IdentityUser> signInManager,
+            IDataProtectionProvider dataProtectionProvider)
         {
+            
             _userManager = userManager;
             _configuration = configuration;
             _signInManager = signInManager;
+            _dataProtector=dataProtectionProvider.CreateProtector("valor_unico_y_quizas_secreto");
+        }
+        [HttpGet("encriptar")]
+        public ActionResult Encriptar()
+        {
+            var textoPlano = "Julian Tormes";
+            var textoCifrado = _dataProtector.Protect(textoPlano);
+            var textoDesencriptado = _dataProtector.Unprotect(textoCifrado);
+            return Ok(new
+            {
+                textoPlano = textoPlano,
+                textoCifrado = textoCifrado,
+                textoDesencriptado = textoDesencriptado
+            });
+        }
+        [HttpGet("encriptarPorTiempo")]
+        public ActionResult EncriptarPorTiempo()
+        {
+            var protectorLimitadoPorTiempo = _dataProtector.ToTimeLimitedDataProtector();
+            var textoPlano = "Julian Tormes";
+            var textoCifrado = protectorLimitadoPorTiempo.Protect(textoPlano, lifetime:TimeSpan.FromSeconds(5));
+            Thread.Sleep(6000);
+            var textoDesencriptado = _dataProtector.Unprotect(textoCifrado);
+            return Ok(new
+            {
+                textoPlano= textoPlano,
+                textoCifrado = textoCifrado,
+                textoDesencriptado=textoDesencriptado
+            });
         }
         [HttpPost("Registar")] //api/cuentas/registrar
         public async Task<ActionResult<RespuestaAutenticacionDTO>> Registrar(CredencialesUsuario creedencialesUsuario)

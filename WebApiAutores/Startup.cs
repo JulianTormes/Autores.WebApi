@@ -77,7 +77,8 @@ namespace WebApiAutores
             {
                 opciones.AddPolicy("EsAdmin", politica => politica.RequireClaim("esAdmin"));
             });
-            services.AddCors(opciones =>
+            services.AddDataProtection();
+          services.AddCors(opciones =>
             {
                 opciones.AddDefaultPolicy(builder =>
                 {
