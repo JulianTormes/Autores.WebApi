@@ -10,6 +10,7 @@ using System.Text.Json.Serialization;
 using WebApiAutores.Controllers;
 using WebApiAutores.Filtros;
 using WebApiAutores.Middlewares;
+using WebApiAutores.Servicios;
 
 namespace WebApiAutores
 {
@@ -78,13 +79,15 @@ namespace WebApiAutores
                 opciones.AddPolicy("EsAdmin", politica => politica.RequireClaim("esAdmin"));
             });
             services.AddDataProtection();
-          services.AddCors(opciones =>
+            services.AddTransient<HashService>();
+            services.AddCors(opciones =>
             {
                 opciones.AddDefaultPolicy(builder =>
                 {
                     builder.WithOrigins("https://apirequest.io").AllowAnyMethod().AllowAnyHeader();
                 });
             });
+
         }
         public void Configure (IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
         {
