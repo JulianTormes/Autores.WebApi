@@ -38,6 +38,7 @@ namespace WebApiAutores
             options.UseSqlServer(Configuration.GetConnectionString("defaulConnection")));
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen(c => {
+                c.OperationFilter<AgregarParametroHATEOAS>();
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     Name = "Authorization",

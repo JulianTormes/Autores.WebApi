@@ -33,7 +33,7 @@ namespace WebApiAutores.Controllers
         //(Multiples rutas)
         [AllowAnonymous]
         [ServiceFilter(typeof(HATEOASAutorFilterAttribute))]
-        public async Task<ActionResult<List<AutorDTO>>> Get([FromHeader]string incluirHATEOAS)
+        public async Task<ActionResult<List<AutorDTO>>> Get()
         {
             var autores = await _context.Autores.ToListAsync();
             return  _mapper.Map<List<AutorDTO>>(autores);
@@ -41,7 +41,7 @@ namespace WebApiAutores.Controllers
         [HttpGet("{id:int}",Name = "obtenerAutor")]
         [AllowAnonymous]
         [ServiceFilter(typeof(HATEOASAutorFilterAttribute))]
-        public async Task<ActionResult<AutorDTOConLibros>> Get(int id, [FromHeader]string incluirHATEOAS)
+        public async Task<ActionResult<AutorDTOConLibros>> Get(int id)
         {
             var autor = await _context.Autores
                 .Include(autorDB=>autorDB.AutorLibro )
