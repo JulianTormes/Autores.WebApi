@@ -11,10 +11,10 @@ using System.Text;
 using WebApiAutores.DTOs;
 using WebApiAutores.Servicios;
 
-namespace WebApiAutores.Controllers
+namespace WebApiAutores.Controllers.V1
 {
     [ApiController]
-    [Route("api/cuentas")]
+    [Route("api/v1/cuentas")]
     public class CuentasController : ControllerBase
     {
         private readonly UserManager<IdentityUser> _userManager;
@@ -27,7 +27,7 @@ namespace WebApiAutores.Controllers
             IConfiguration configuration,
             SignInManager<IdentityUser> signInManager,
             IDataProtectionProvider dataProtectionProvider,
-            HashService hashService) 
+            HashService hashService)
         {
 
             _userManager = userManager;
@@ -36,11 +36,14 @@ namespace WebApiAutores.Controllers
             _hashService = hashService;
             _dataProtector = dataProtectionProvider.CreateProtector("valor_unico_y_quizas_secreto");
         }
-        [HttpPost("Registar",Name = "registrarUsuario")] //api/cuentas/registrar
+        [HttpPost("Registar", Name = "registrarUsuario")] //api/cuentas/registrar
         public async Task<ActionResult<RespuestaAutenticacionDTO>> Registrar(CredencialesUsuario creedencialesUsuario)
         {
-            var usuario = new IdentityUser { UserName = creedencialesUsuario.Email,
-                Email = creedencialesUsuario.Email };
+            var usuario = new IdentityUser
+            {
+                UserName = creedencialesUsuario.Email,
+                Email = creedencialesUsuario.Email
+            };
             var resultado = await _userManager.CreateAsync(usuario, creedencialesUsuario.Password);
             if (resultado.Succeeded)
             {
@@ -51,7 +54,7 @@ namespace WebApiAutores.Controllers
                 return BadRequest(resultado.Errors);
             }
         }
-        [HttpPost("login",Name = "loginUsuario")]
+        [HttpPost("login", Name = "loginUsuario")]
         public async Task<ActionResult<RespuestaAutenticacionDTO>> Login(CredencialesUsuario credencialesUsuario)
         {
             var resultado = await _signInManager.PasswordSignInAsync(credencialesUsuario.Email,
@@ -65,20 +68,20 @@ namespace WebApiAutores.Controllers
                 return BadRequest("Login incorrecto");
             }
         }
-        [HttpGet("RenovarToken",Name = "renovarToken")]
+        [HttpGet("RenovarToken", Name = "renovarToken")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public async  Task <ActionResult<RespuestaAutenticacionDTO>> Renovar()
+        public async Task<ActionResult<RespuestaAutenticacionDTO>> Renovar()
         {
             var emailClaim = HttpContext.User.Claims.Where(claim => claim.Type == "email").FirstOrDefault();
             var email = emailClaim.Value;
             var credencialesUsuario = new CredencialesUsuario()
             {
-                Email= email
+                Email = email
             };
             return await ConstruirToken(credencialesUsuario);
-            
+
         }
-        private async Task <RespuestaAutenticacionDTO> ConstruirToken(CredencialesUsuario creedencialesUsuario)
+        private async Task<RespuestaAutenticacionDTO> ConstruirToken(CredencialesUsuario creedencialesUsuario)
         {
             var claims = new List<Claim>()
             {
@@ -86,7 +89,7 @@ namespace WebApiAutores.Controllers
                new Claim ("lo que yo quiera","Cualquier otro valor")
             };
             var usuario = await _userManager.FindByEmailAsync(creedencialesUsuario.Email);
-            var claimsDB= await _userManager.GetClaimsAsync(usuario);
+            var claimsDB = await _userManager.GetClaimsAsync(usuario);
 
             claims.AddRange(claimsDB);
 
@@ -94,7 +97,7 @@ namespace WebApiAutores.Controllers
             var creds = new SigningCredentials(llave, SecurityAlgorithms.HmacSha256);
             var expiracion = DateTime.UtcNow.AddYears(1);
             var securityToken = new JwtSecurityToken(issuer: null, audience: null, claims: claims,
-                expires: expiracion, signingCredentials:creds);
+                expires: expiracion, signingCredentials: creds);
             return new RespuestaAutenticacionDTO()
             {
                 Token = new JwtSecurityTokenHandler().WriteToken(securityToken),
@@ -103,7 +106,7 @@ namespace WebApiAutores.Controllers
         }
         [HttpPost("HacerAdmin", Name = "hacerAdmin")]
         public async Task<ActionResult> HacerAdmin(EditarAdminDTO editarAdminDTO)
-        { 
+        {
             var usuario = await _userManager.FindByEmailAsync(editarAdminDTO.Email);
             await _userManager.AddClaimAsync(usuario, new Claim("esAdmin", "1"));
             return NoContent();

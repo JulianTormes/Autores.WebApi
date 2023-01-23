@@ -5,10 +5,10 @@ using Microsoft.EntityFrameworkCore;
 using WebApiAutores.DTOs;
 using WebApiAutores.Entidades;
 
-namespace WebApiAutores.Controllers;
+namespace WebApiAutores.Controllers.V1;
 
 [ApiController]
-[Route("api/libros")]
+[Route("api/v1/libros")]
 
 public class LibrosController : ControllerBase
 {
@@ -29,7 +29,7 @@ public class LibrosController : ControllerBase
             .Include(libroDB => libroDB.Comentarios)
             .FirstOrDefaultAsync(x => x.Id == id);
         if (libro == null)
-        { 
+        {
             return NotFound();
         }
         libro.AutoresLibros = libro.AutoresLibros.OrderBy(x => x.Orden).ToList();
@@ -60,12 +60,12 @@ public class LibrosController : ControllerBase
     }
     [HttpPut("{id:int}", Name = "actualizarLibro")]
     public async Task<ActionResult> Put(int id, LibroCreacionDTO libroCreacionDTO)
-    { 
-        var libroDB= await _context.Libros
-            .Include(x=>x.AutoresLibros)
-            .FirstOrDefaultAsync(x=>x.Id == id);
+    {
+        var libroDB = await _context.Libros
+            .Include(x => x.AutoresLibros)
+            .FirstOrDefaultAsync(x => x.Id == id);
         if (libroDB == null)
-        { 
+        {
             return NotFound();
         }
         libroDB = _mapper.Map(libroCreacionDTO, libroDB);
@@ -85,11 +85,11 @@ public class LibrosController : ControllerBase
 
         }
     }
-    [HttpPatch("{id:int}",Name = "patchLibro")]
-    public async Task <ActionResult> Patch (int id,JsonPatchDocument<LibroPatchDTO>patchDocument)
+    [HttpPatch("{id:int}", Name = "patchLibro")]
+    public async Task<ActionResult> Patch(int id, JsonPatchDocument<LibroPatchDTO> patchDocument)
     {
         if (patchDocument == null)
-        { 
+        {
             return BadRequest();
         }
         var libroDB = await _context.Libros.FirstOrDefaultAsync(x => x.Id == id);
@@ -99,8 +99,8 @@ public class LibrosController : ControllerBase
             return NotFound();
         }
         var libroDTO = _mapper.Map<LibroPatchDTO>(libroDB);
-        patchDocument.ApplyTo(libroDTO,ModelState);
-        var esValido= TryValidateModel(libroDTO);
+        patchDocument.ApplyTo(libroDTO, ModelState);
+        var esValido = TryValidateModel(libroDTO);
         if (!esValido)
         {
             return BadRequest(ModelState);
@@ -109,7 +109,7 @@ public class LibrosController : ControllerBase
         await _context.SaveChangesAsync();
         return NoContent();
     }
-    [HttpDelete("{id:int}",Name = "borrarLibro")]
+    [HttpDelete("{id:int}", Name = "borrarLibro")]
     public async Task<ActionResult> Delete(int id)
     {
         var existe = await _context.Libros.AnyAsync(x => x.Id == id);
