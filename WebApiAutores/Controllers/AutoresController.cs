@@ -28,7 +28,7 @@ namespace WebApiAutores.Controllers
             _mapper = mapper;
             _configuration = configuration;
         }
-        [HttpGet]//api/autores (hereda ruta)
+        [HttpGet(Name = "obtenerAutores")]//api/autores (hereda ruta)
         //(Multiples rutas)
         [AllowAnonymous]
         public async Task<ActionResult<List<AutorDTO>>> Get()
@@ -48,10 +48,27 @@ namespace WebApiAutores.Controllers
             {
                 return NotFound();
             }
-            return _mapper.Map<AutorDTOConLibros>(autor);
+            var dto = _mapper.Map<AutorDTOConLibros>(autor);
+            GenerarEnlaces(dto);
+            return dto;
 
         }
-        [HttpGet("{nombre}")]
+        private void GenerarEnlaces(AutorDTO autorDTO)
+        {
+            autorDTO.Enlaces.Add(new DatoHATEOAS(
+                enlace:Url.Link("obtenerAutor", new { id = autorDTO.Id }),
+                descripcion:"self",
+                metodo :"GET"));
+            autorDTO.Enlaces.Add(new DatoHATEOAS(
+                enlace: Url.Link("actualizarAutor", new { id = autorDTO.Id }),
+                descripcion: "autor-actualizar",
+                metodo: "PUT"));
+            autorDTO.Enlaces.Add(new DatoHATEOAS(
+                enlace: Url.Link("borrarAutor", new { id = autorDTO.Id }),
+                descripcion: "self",
+                metodo: "DELETE"));
+        }
+        [HttpGet("{nombre}",Name = "obtenerAutorPorNombre")]
         public async Task<ActionResult<List<AutorDTO>>> Get([FromRoute] string nombre)
         {
             var autores = await _context.Autores.Where(autorBD => autorBD.Nombre.Contains(nombre)).ToListAsync();
@@ -60,7 +77,7 @@ namespace WebApiAutores.Controllers
 
         }
 
-        [HttpPost]
+        [HttpPost(Name ="crearAutor")]
         public async Task<ActionResult> Post([FromBody] AutorCreacionDTO autorCreacionDTO)
         {
             /*var result = await ValidateAsync(autor);
@@ -84,7 +101,7 @@ namespace WebApiAutores.Controllers
             return CreatedAtRoute("obtenerAutor", new { id = autor.Id }, autorDTO);
         }
 
-        [HttpPut("{id:int}")]// api/autores/"IdAutor"
+        [HttpPut("{id:int}",Name = "actualizarAutor")]// api/autores/"IdAutor"
         public async Task<ActionResult> Put(AutorCreacionDTO autorCreacionDTO, int id)
         {
             var existe = await _context.Autores.AnyAsync(autorBD => autorBD.Id == id);
@@ -99,7 +116,7 @@ namespace WebApiAutores.Controllers
             return NoContent();
 
         }
-        [HttpDelete("{id:int}")] // api/autores/IdAutor
+        [HttpDelete("{id:int}",Name ="borrarAutor")] // api/autores/IdAutor
         public async Task<ActionResult> Delete(int id)
         {
             var existe = await _context.Autores.AnyAsync(x => x.Id == id);

@@ -36,7 +36,7 @@ public class LibrosController : ControllerBase
 
         return _mapper.Map<LibroDTOConAutores>(libro);
     }
-    [HttpPost]
+    [HttpPost(Name = "crearLibro")]
     public async Task<ActionResult> Post(LibroCreacionDTO libroCreacionDTO)
     {
         if (libroCreacionDTO.AutoresIds == null)
@@ -58,7 +58,7 @@ public class LibrosController : ControllerBase
         var libroDTO = _mapper.Map<LibroDTO>(libro);
         return CreatedAtRoute("ObtenerLibro", new { id = libro.Id }, libroDTO);
     }
-    [HttpPut("{id:int}")]
+    [HttpPut("{id:int}", Name = "actualizarLibro")]
     public async Task<ActionResult> Put(int id, LibroCreacionDTO libroCreacionDTO)
     { 
         var libroDB= await _context.Libros
@@ -85,7 +85,7 @@ public class LibrosController : ControllerBase
 
         }
     }
-    [HttpPatch("{id:int}")]
+    [HttpPatch("{id:int}",Name = "patchLibro")]
     public async Task <ActionResult> Patch (int id,JsonPatchDocument<LibroPatchDTO>patchDocument)
     {
         if (patchDocument == null)
@@ -109,7 +109,7 @@ public class LibrosController : ControllerBase
         await _context.SaveChangesAsync();
         return NoContent();
     }
-    [HttpDelete("{id:int}")]
+    [HttpDelete("{id:int}",Name = "borrarLibro")]
     public async Task<ActionResult> Delete(int id)
     {
         var existe = await _context.Libros.AnyAsync(x => x.Id == id);
