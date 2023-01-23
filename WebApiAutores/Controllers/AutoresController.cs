@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using WebApiAutores.DTOs;
 using WebApiAutores.Entidades;
 using WebApiAutores.Filtros;
+using WebApiAutores.Utilidades;
 
 namespace WebApiAutores.Controllers
 {
@@ -38,7 +39,7 @@ namespace WebApiAutores.Controllers
             if (incluirHATEOAS)
             {
                 var esAdmin = await _authorizationService.AuthorizeAsync(User, "esAdmin");
-                dtos.ForEach(dto => GenerarEnlaces(dto, esAdmin.Succeeded));
+                //dtos.ForEach(dto => GenerarEnlaces(dto, esAdmin.Succeeded));
                 var resultado = new ColeccionDeRecursos<AutorDTO> { Valores = dtos };
                 resultado.Enlaces.Add(new DatoHATEOAS(
                     enlace: Url.Link("obtenerAutores", new { }),
@@ -58,7 +59,8 @@ namespace WebApiAutores.Controllers
         }
         [HttpGet("{id:int}",Name = "obtenerAutor")]
         [AllowAnonymous]
-        public async Task<ActionResult<AutorDTOConLibros>> Get(int id)
+        [ServiceFilter(typeof(HATEOASAutorFilterAttribute))]
+        public async Task<ActionResult<AutorDTOConLibros>> Get(int id, [FromHeader]string incluirHATEOAS)
         {
             var autor = await _context.Autores
                 .Include(autorDB=>autorDB.AutorLibro )
@@ -70,8 +72,6 @@ namespace WebApiAutores.Controllers
                 return NotFound();
             }
             var dto = _mapper.Map<AutorDTOConLibros>(autor);
-            var esAdmin = await _authorizationService.AuthorizeAsync(User, "esAdmin");
-            GenerarEnlaces(dto, esAdmin.Succeeded);
             return dto;
 
         }
