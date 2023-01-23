@@ -31,28 +31,29 @@ namespace WebApiAutores.Controllers
         [HttpGet(Name = "obtenerAutores")]//api/autores (hereda ruta)
         //(Multiples rutas)
         [AllowAnonymous]
-        public async Task<ColeccionDeRecursos<AutorDTO>> Get()
+        public async Task<IActionResult> Get([FromQuery]bool incluirHATEOAS= true)
         {
             var autores = await _context.Autores.ToListAsync();
             var dtos = _mapper.Map<List<AutorDTO>>(autores);
-            var esAdmin = await _authorizationService.AuthorizeAsync(User, "esAdmin");
-
-            dtos.ForEach(dto => GenerarEnlaces(dto, esAdmin.Succeeded));
-            var resultado = new ColeccionDeRecursos<AutorDTO> { Valores = dtos };
-            resultado.Enlaces.Add(new DatoHATEOAS(
-                enlace: Url.Link("obtenerAutores", new { }),
-                descripcion: "self",
-                metodo: "GET"));
-            if (esAdmin.Succeeded)
+            if (incluirHATEOAS)
             {
-            resultado.Enlaces.Add(new DatoHATEOAS(
-                enlace: Url.Link("crearAutor", new { }),
-                descripcion: "crear-autor",
-                metodo: "POST"));
+                var esAdmin = await _authorizationService.AuthorizeAsync(User, "esAdmin");
+                dtos.ForEach(dto => GenerarEnlaces(dto, esAdmin.Succeeded));
+                var resultado = new ColeccionDeRecursos<AutorDTO> { Valores = dtos };
+                resultado.Enlaces.Add(new DatoHATEOAS(
+                    enlace: Url.Link("obtenerAutores", new { }),
+                    descripcion: "self",
+                    metodo: "GET"));
+                if (esAdmin.Succeeded)
+                {
+                    resultado.Enlaces.Add(new DatoHATEOAS(
+                        enlace: Url.Link("crearAutor", new { }),
+                        descripcion: "crear-autor",
+                        metodo: "POST"));
+                }
+                return Ok(resultado);
             }
-
-
-        return resultado;
+            return Ok(dtos);
 
         }
         [HttpGet("{id:int}",Name = "obtenerAutor")]
