@@ -125,6 +125,11 @@ namespace WebApiAutores.Controllers.V1
             return NoContent();
 
         }
+        /// <summary>
+        /// Borra un autor
+        /// </summary>
+        /// <param name="id">Id del autor a borrar</param>
+        /// <returns></returns>
         [HttpDelete("{id:int}", Name = "borrarAutorv1")] // api/autores/IdAutor
         public async Task<ActionResult> Delete(int id)
         {
