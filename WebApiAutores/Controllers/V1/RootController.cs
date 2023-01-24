@@ -8,11 +8,11 @@ namespace WebApiAutores.Controllers.V1
     [ApiController]
     [Route("api/v1")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class RouteController : ControllerBase
+    public class RootController : ControllerBase
     {
         private readonly IAuthorizationService _authorizationService;
 
-        public RouteController(IAuthorizationService authorizationService)
+        public RootController(IAuthorizationService authorizationService)
         {
             _authorizationService = authorizationService;
         }
